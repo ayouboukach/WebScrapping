@@ -29,10 +29,19 @@ public class JuridictionResource {
 		return ResponseEntity.ok().body(createHttpResponse(HttpStatus.OK, "Juridictions is scrapped successfully",null));
 	}
 
+//	@GetMapping("/all")
+////    @PreAuthorize("permitAll()")
+//	public ResponseEntity<?> getAllJuridictions() {
+//		return ResponseEntity.ok().body(createHttpResponse(HttpStatus.OK, "Listes of Juridictions",(Map<?, ?>) juridictionService.getJuridictions()));
+//	}
+	
+	
 	@GetMapping("/all")
-//    @PreAuthorize("permitAll()")
+//  @PreAuthorize("permitAll()")
 	public ResponseEntity<?> getAllJuridictions() {
-		return ResponseEntity.ok().body(createHttpResponse(HttpStatus.OK, "Listes of Juridictions",(Map<?, ?>) juridictionService.getJuridictions()));
+		var listJuriiction = juridictionService.getAllJuridictions();
+		listJuriiction.stream().forEach(j->{j.setChildJuridictions(null);});
+		return ResponseEntity.ok().body(listJuriiction);
 	}
 
 	/*

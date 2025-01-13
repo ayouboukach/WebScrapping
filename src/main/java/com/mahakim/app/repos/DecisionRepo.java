@@ -20,7 +20,7 @@ public interface DecisionRepo extends JpaRepository<DecisionEntity , Integer> {
 	    List<DecisionEntity> findDecisionsForToday();
     
     @Query("SELECT td FROM DecisionEntity td " +
-    	       "WHERE (td.dateTimeNextAudience < CURRENT_TIMESTAMP OR td.dateTimeNextAudience IS NULL)" +
+    	       "WHERE (td.dateTimeNextAudience < CURRENT_TIMESTAMP OR td.dateTimeNextAudience IS NULL) " +
     	       "AND td.typeDecision != ' حكم قطعي' " +
     	       "AND td.idDecision IN (" +
     	       "  SELECT tdLatest.idDecision FROM DecisionEntity tdLatest " +

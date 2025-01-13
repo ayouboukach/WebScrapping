@@ -91,17 +91,27 @@ public class DecisionServiceImpl implements DecisionService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void actualiserDecisionsDepuisApiChasque5Secondes() {
-		try {
-			log.info("Démarrage... d'actualiser les decisions sont les audiances suivantes passées!");
-			List<DecisionEntity> decisionsDbSontAudianceSuivantPassee = decisionRepo.findDecisionsWithPastDateAndExcludedType();
-			List<DossierEntity> dossiers = dossierRepo.findDossiersByDecisionsIn(decisionsDbSontAudianceSuivantPassee);
-			Map<DossierEntity, List<DecisionEntity>> decisionsActualisees = 
-					actualiserDecisionsApiParListDossiers(DossierHelper.convertirDossiersVersMap(dossiers));
-			dossierRepo.saveAll(DossierHelper.convertirMapVersDossiers(decisionsActualisees));
-			log.info("Toutes les decisions sont les audiances suivantes passées sont actualisées!");
-		} catch (Exception e) {
-			log.info("Erreur lors l'actualisation les decisions!, {}",e.getMessage());
-		}
+        try {
+            log.info("Démarrage... d'actualiser les decisions sont les audiances suivantes passées!");
+            var decisionsDbSontAudianceSuivantPassee = decisionRepo.findDecisionsWithPastDateAndExcludedType();
+            log.info("Le nombre des décisions trouvées {}", decisionsDbSontAudianceSuivantPassee.size());
+            if (decisionsDbSontAudianceSuivantPassee.isEmpty()) {
+                log.warn("Aucune décision trouvée pour mise à jour.");
+                return;
+            }
+            log.info("Recherche... dans db les dossiers liés à ces décisions");
+            var dossiers = dossierRepo.findDossiersByDecisionsIn(decisionsDbSontAudianceSuivantPassee);
+            if (dossiers.isEmpty()) {
+                log.warn("Aucun dossier trouvé pour ces décisions !");
+                return;
+            }
+            log.info("Le nombre des dossiers trouvés {}", dossiers.size());
+            var decisionsActualisees = actualiserDecisionsApiParListDossiers(DossierHelper.convertirDossiersVersMap(dossiers));
+            dossierRepo.saveAll(DossierHelper.convertirMapVersDossiers(decisionsActualisees));
+            log.info("Toutes les décisions sont les audiances suivantes passées sont actualisées!");
+        } catch (Exception e) {
+            log.error("Erreur lors de l'actualisation des décisions !, {}", e.getMessage(), e);
+        }
     }
 
 	@Override
